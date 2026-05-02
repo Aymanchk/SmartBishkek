@@ -1,84 +1,111 @@
-# SmartBishkek
+<div align="center">
+  <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/map.svg" alt="SmartBishkek Logo" width="80" height="80">
+  <br/>
+  <h1>SmartBishkek</h1>
+  <p><b>Платформа краудсорс-мониторинга городской инфраструктуры</b></p>
+  
+  [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
+  [![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
+  [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+  [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+</div>
 
-Платформа краудсорс-мониторинга городской инфраструктуры:
-жители фиксируют проблемы (ямы, мусор, освещение) через мобильное приложение,
-бэкенд автоматически классифицирует фото, операторы обрабатывают заявки
-через веб-панель с картой.
+<br/>
 
-## Структура монорепо
+**SmartBishkek** — это современная экосистема для взаимодействия жителей и городских служб (мэрии). 
+Жители быстро фиксируют проблемы (ямы, мусор, неработающее освещение) через удобное мобильное приложение, ИИ автоматически классифицирует тип проблемы, а операторы мгновенно получают заявку на интерактивной карте в веб-панели и назначают ремонтные бригады.
 
-```
+---
+
+## ✨ Ключевые возможности
+
+### 📱 Для горожан (Мобильное приложение)
+- **Умная подача заявки:** 1 фото + 30 секунд. GPS координаты подтягиваются автоматически.
+- **Интерактивная карта:** Просмотр всех городских проблем на карте в реальном времени.
+- **Мои заявки:** Отслеживание статуса собственных заявок (Новая → В работе → Решена). Безопасная аутентификация по `device_id` без нудной регистрации по номеру телефона.
+
+### 💻 Для мэрии (Веб-панель оператора)
+- **Triage Map:** Интерактивная тепловая карта и список всех заявок с фильтрацией по статусу.
+- **AI-Ассистент:** Автоматическое распознавание категории проблемы по загруженному фото.
+- **Аналитика:** Детализированный дашборд с метриками эффективности работы служб (KPI, время решения, графики).
+- **Управление бригадами:** Мониторинг загруженности ремонтных бригад на местах.
+- **Гибкие настройки:** Темная/Светлая тема, персонализация профиля (сохраняется глобально) и управление API.
+
+---
+
+## 🏗 Архитектура проекта
+
+Проект представляет собой классический монорепозиторий, разделенный на три независимых микросервиса:
+
+```text
 smartbishkek/
-├── backend/   # Django + DRF + ML-классификатор (SQLite)
-├── admin/     # Next.js 14 + React-Leaflet (панель оператора)
-└── mobile/    # Flutter (приложение горожанина)
+├── 🐍 backend/   # Django + DRF + ML (API для обоих клиентов)
+├── ⚛️ admin/     # Next.js 14 + React (Веб-панель оператора)
+└── 🦋 mobile/    # Flutter 3 (Приложение для iOS и Android)
 ```
 
-## 1. Backend (Django)
+---
+
+## 🚀 Быстрый старт (Демо-сценарий)
+
+Для тестирования локально вам потребуются **Python 3.10+**, **Node.js 18+**, и установленный **Flutter SDK**.
+
+### 1. Запуск Backend (Django)
+Бэкенд отвечает за сохранение заявок, работу с БД (SQLite) и ML-модель.
 
 ```bash
 cd backend
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv 
+source .venv/bin/activate  # Для Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py makemigrations issues
 python manage.py migrate
-python manage.py createsuperuser   # для /admin
 python manage.py runserver 0.0.0.0:8000
 ```
+> Бэкенд запущен на `http://localhost:8000`
 
-Эндпоинты:
-- `POST /api/issues/` — создать заявку (multipart: `image`, `latitude`, `longitude`, `description`)
-- `GET  /api/issues/` — список всех заявок
-- `GET  /api/issues/<id>/` — одна заявка
-- `PATCH /api/issues/<id>/` — обновить статус (`{"status": "resolved"}`)
-- `/admin/` — Django admin
-
-ML-классификатор — заглушка в [backend/issues/ml.py](backend/issues/ml.py)
-(эвристика по среднему цвету). Замените `classify_image()` на вызов
-TensorFlow/PyTorch-модели или внешнего API.
-
-## 2. Admin (Next.js)
+### 2. Запуск Панели Оператора (Next.js)
+Защищенная зона для сотрудников мэрии. 
 
 ```bash
 cd admin
-cp .env.local.example .env.local   # при необходимости поменяйте API URL
 npm install
 npm run dev
 ```
+> Админка запущена на `http://localhost:3000`. 
+> **Доступ:** Логин `admin` / Пароль `smartbishkek2026`
 
-Откройте http://localhost:3000 — карта Бишкека с маркерами заявок
-(цвет = статус) и таблица для смены статусов. Данные обновляются каждые 10с.
-
-## 3. Mobile (Flutter)
+### 3. Запуск Мобильного приложения (Flutter)
+Приложение горожанина. Запускайте на симуляторе iOS или эмуляторе Android.
 
 ```bash
 cd mobile
-flutter create .            # сгенерирует android/ ios/ папки
-# затем добавьте разрешения из PERMISSIONS.md
 flutter pub get
 flutter run
 ```
+> При запуске на эмуляторе Android приложение по умолчанию обращается к `10.0.2.2:8000`. Для тестирования на физическом устройстве измените `api_base_url` в настройках приложения на локальный IP вашего компьютера (например: `192.168.1.5:8000`).
 
-В приложении: **Настройки** → задать API base URL.
-- Android emulator: `http://10.0.2.2:8000`
-- iOS simulator: `http://localhost:8000`
-- Реальное устройство: `http://<IP-вашего-ПК>:8000`
+---
 
-Экраны:
-- **Сообщить** — фото + GPS + комментарий → POST `/api/issues/`
-- **Мои заявки** — список локально сохранённых заявок и их актуальный статус
+## 🛠 Технологический стек
 
-## Демо-сценарий
+- **Backend:** Django 4.2, Django REST Framework, Pillow, SQLite, CORS Headers.
+- **Admin Panel:** Next.js 14 (App Router), React 18, React-Leaflet (OSM Map), Lucide Icons, CSS Modules.
+- **Mobile App:** Flutter 3, `geolocator`, `image_picker`, `flutter_map` + `latlong2`, `http`, `uuid`, `shared_preferences`.
+- **Machine Learning:** Заглушка на базе эвристики (Pillow). Подготовлена архитектура для замены на TensorFlow Lite / PyTorch Mobile или Hugging Face Inference API.
 
-1. Запустите backend (`runserver`).
-2. Запустите admin (`npm run dev`) — увидите пустую карту.
-3. С телефона/эмулятора отправьте заявку через Flutter-приложение.
-4. В админке появится маркер на карте + строка в таблице с категорией от ML.
-5. Поменяйте статус в таблице → в мобильном приложении (потяните вниз) увидите обновление.
+---
 
-## Технологии
+## 🎥 Как это работает?
+1. Житель делает фото ямы через мобильное приложение.
+2. Flutter передает координаты и картинку с заголовком `X-Device-Id` на бэкенд.
+3. Django сохраняет заявку в базу и запускает ML-алгоритм для определения категории.
+4. В диспетчерской (Next.js) у оператора появляется новая точка на карте и уведомление.
+5. Оператор переводит статус в **"В работе"**.
+6. Житель свайпает экран в приложении и видит, что статус его проблемы изменился! 🎉
 
-- **Backend:** Django 4.2, DRF, Pillow, SQLite, django-cors-headers
-- **Admin:** Next.js 14 (App Router), React-Leaflet, OpenStreetMap
-- **Mobile:** Flutter 3, image_picker, geolocator, http, shared_preferences
-- **ML:** Pillow-эвристика (заглушка под TF/PyTorch)
+---
+
+<div align="center">
+  <i>Разработано с ❤️ для улучшения городской среды.</i>
+</div>
