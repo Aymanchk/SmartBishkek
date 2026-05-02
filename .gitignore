@@ -1,0 +1,28 @@
+# Python
+backend/.venv/
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+backend/db.sqlite3
+backend/media/
+
+# Node
+admin/node_modules/
+admin/.next/
+admin/.env.local
+
+# Flutter
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/ios/Pods/
+mobile/android/.gradle/
+
+# OS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.swp
